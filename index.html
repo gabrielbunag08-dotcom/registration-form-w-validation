@@ -137,6 +137,8 @@
         .form-group:nth-child(4) { animation-delay: 0.45s; }
         .form-group:nth-child(5) { animation-delay: 0.5s; }
         .form-group:nth-child(6) { animation-delay: 0.55s; }
+        .form-group:nth-child(7) { animation-delay: 0.6s; }
+        .form-group:nth-child(8) { animation-delay: 0.65s; }
 
         .form-group.full-width {
             grid-column: 1 / -1;
@@ -417,6 +419,20 @@
                     <div class="error-message">Please enter a valid last name (letters only)</div>
                 </div>
 
+                <div class="form-group">
+                    <label for="suffix">Suffix</label>
+                    <select id="suffix" name="suffix">
+                        <option value="">None</option>
+                        <option value="Jr.">Jr.</option>
+                        <option value="Sr.">Sr.</option>
+                        <option value="II">II</option>
+                        <option value="III">III</option>
+                        <option value="IV">IV</option>
+                        <option value="V">V</option>
+                    </select>
+                    <div class="error-message">Please select a suffix</div>
+                </div>
+
                 <div class="form-group full-width">
                     <label for="username">Username *</label>
                     <input type="text" id="username" name="username" placeholder="johndoe" required>
@@ -522,6 +538,42 @@
         // Get form elements
         const form = document.getElementById('registrationForm');
         const formGroups = document.querySelectorAll('.form-group');
+
+        // Prevent numbers in name fields (First Name and Last Name)
+        const nameFields = ['firstName', 'lastName'];
+        nameFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            
+            // Prevent typing numbers
+            field.addEventListener('keypress', function(e) {
+                const char = String.fromCharCode(e.which);
+                // Allow only letters, spaces, hyphens, and apostrophes
+                if (!/[A-Za-z\s'\-]/.test(char)) {
+                    e.preventDefault();
+                }
+            });
+
+            // Prevent pasting numbers
+            field.addEventListener('paste', function(e) {
+                e.preventDefault();
+                const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+                // Remove any characters that aren't letters, spaces, hyphens, or apostrophes
+                const cleanedText = pastedText.replace(/[^A-Za-z\s'\-]/g, '');
+                document.execCommand('insertText', false, cleanedText);
+            });
+
+            // Clean up any numbers that might have been entered
+            field.addEventListener('input', function(e) {
+                const cursorPosition = this.selectionStart;
+                const originalLength = this.value.length;
+                this.value = this.value.replace(/[^A-Za-z\s'\-]/g, '');
+                const newLength = this.value.length;
+                
+                // Adjust cursor position if characters were removed
+                const diff = originalLength - newLength;
+                this.setSelectionRange(cursorPosition - diff, cursorPosition - diff);
+            });
+        });
 
         // Real-time validation
         form.querySelectorAll('input, select, textarea').forEach(input => {
